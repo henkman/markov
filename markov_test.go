@@ -2,6 +2,7 @@ package markov
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"testing"
 	"time"
@@ -35,5 +36,9 @@ func TestGenerator(t *testing.T) {
 		tg.Feed(fd)
 		fd.Close()
 	}
-	fmt.Println(WordJoin(tg.Generate(10)))
+	const max = 10
+	const min = 3
+	mr := rand.New(rand.NewSource(time.Now().Unix()))
+	x := mr.Int31n((max-min)+1) + min
+	fmt.Println(x, "words for you:", WordJoin(tg.Generate(uint(x))))
 }
