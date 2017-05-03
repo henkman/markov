@@ -52,8 +52,8 @@ func (tg *TextGenerator) appendNode(key, value string) {
 }
 
 func (tg *TextGenerator) Feed(in io.Reader) {
-	br := bufio.NewReader(in)
 	type MatchFun func(rune) bool
+	br := bufio.NewReader(in)
 	read := func() rune {
 		r, _, err := br.ReadRune()
 		if err != nil {
@@ -61,41 +61,48 @@ func (tg *TextGenerator) Feed(in io.Reader) {
 		}
 		return r
 	}
-	last := ""
-	c := read()
-	for c != -1 {
-		for unicode.IsSpace(c) {
-			c = read()
-		}
-	matchloop:
+	accept := func(r rune) MatchFun {
 		for _, mf := range []MatchFun{
 			unicode.IsLetter,
 			unicode.IsDigit,
 			unicode.IsPunct,
 		} {
+			if mf(r) {
+				return mf
+			}
+		}
+		return nil
+	}
+	last := ""
+	c := read()
+next:
+	for {
+		mf := accept(c)
+		for mf == nil && c != -1 {
+			c = read()
+			mf = accept(c)
+		}
+		if c == -1 {
+			break
+		}
+		val := string(c)
+		for {
+			c = read()
+			if c == -1 {
+				break
+			}
 			if !mf(c) {
-				continue
-			}
-			val := string(c)
-			for {
-				c = read()
-				if c == -1 {
-					break
+				if last != "" {
+					tg.appendNode(last, val)
 				}
-				if !mf(c) {
-					if last != "" {
-						tg.appendNode(last, val)
-					}
-					last = val
-					break matchloop
-				}
-				val += string(c)
-			}
-			if val != "" {
-				tg.appendNode(last, val)
 				last = val
-				break matchloop
+				continue next
 			}
+			val += string(c)
+		}
+		if val != "" {
+			tg.appendNode(last, val)
+			last = val
 		}
 	}
 }
