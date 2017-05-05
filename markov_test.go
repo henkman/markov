@@ -17,7 +17,12 @@ func WordJoin(words []string) string {
 		if !isLast {
 			next := words[i+1]
 			fc := []rune(next)[0]
-			if unicode.IsLetter(fc) || unicode.IsDigit(fc) {
+			word := []rune(words[i])
+			lc := word[len(word)-1]
+			if lc == '.' || lc == ',' || lc == '?' ||
+				lc == '!' || lc == ';' || lc == ':' ||
+				(unicode.IsLetter(lc) || unicode.IsDigit(lc)) &&
+					(unicode.IsLetter(fc) || unicode.IsDigit(fc)) {
 				text += " "
 			}
 		}
@@ -26,6 +31,7 @@ func WordJoin(words []string) string {
 }
 
 func TestGenerator(t *testing.T) {
+
 	var tg TextGenerator
 	tg.Init(time.Now().Unix())
 	{
@@ -34,7 +40,6 @@ func TestGenerator(t *testing.T) {
 			panic(err)
 		}
 		tg.Feed(fd)
-		fd.Close()
 	}
 	const max = 10
 	const min = 3

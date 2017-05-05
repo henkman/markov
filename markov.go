@@ -76,34 +76,27 @@ func (tg *TextGenerator) Feed(in io.Reader) {
 	last := ""
 	c := read()
 next:
-	for {
+	for c != -1 {
 		mf := accept(c)
-		for mf == nil && c != -1 {
+		for mf == nil {
 			c = read()
+			if c == -1 {
+				break next
+			}
 			mf = accept(c)
-		}
-		if c == -1 {
-			break
 		}
 		val := string(c)
 		for {
 			c = read()
-			if c == -1 {
+			if c == -1 || !mf(c) {
 				break
-			}
-			if !mf(c) {
-				if last != "" {
-					tg.appendNode(last, val)
-				}
-				last = val
-				continue next
 			}
 			val += string(c)
 		}
-		if val != "" {
+		if last != "" {
 			tg.appendNode(last, val)
-			last = val
 		}
+		last = val
 	}
 }
 
