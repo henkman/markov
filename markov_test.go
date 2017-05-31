@@ -40,6 +40,7 @@ func TestGenerator(t *testing.T) {
 			panic(err)
 		}
 		tg.Feed(fd)
+		fd.Close()
 	}
 	const max = 10
 	const min = 3
