@@ -101,14 +101,7 @@ next:
 }
 
 func (tg *TextGenerator) Generate(words uint) []string {
-	var node *Node
-	for {
-		node = &tg.nodes[tg.rand.Int31n(int32(len(tg.nodes)))]
-		first := []rune(node.key)[0]
-		if unicode.IsLetter(first) || unicode.IsDigit(first) {
-			break
-		}
-	}
+	node := &tg.nodes[tg.rand.Int31n(int32(len(tg.nodes)))]
 	chain := make([]string, 0, words)
 	chain = append(chain, node.key)
 	var i uint
